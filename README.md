@@ -95,8 +95,8 @@ Here’s the trick:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-joakimtech/omnipos.git
-cd omnipos
+git clone https://github.com/joakimtech/OmniPOS.git
+cd OmniPOS
 ```
 
 ---
@@ -123,7 +123,7 @@ pip install -r requirements.txt
 ###  Frontend Setup (React + Electron)
 
 ```bash
-cd frontend
+cd Frontend
 
 # Install dependencies
 npm install
@@ -134,10 +134,10 @@ npm install
 ###  Run the Development Environment
 
 ```bash
-# Start backend (from root directory)
+# Start Backend (from root directory)
 uvicorn app.main:app --reload
 
-# Start frontend (from /frontend directory)
+# Start Frontend (from /Frontend directory)
 npm run dev
 ```
 
@@ -198,16 +198,9 @@ git checkout -b feature/your-feature
 # Commit your changes
 git commit -m "Add your feature"
 
-# Push and open a PR
+# Push and open a PR( pull request)
 ```
 
----
-
-## License
-
-MIT License – feel free to use, modify, and build on top of OmniPOS.
-
----
 
 ## Final Thought
 

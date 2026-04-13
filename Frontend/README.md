@@ -1,16 +1,62 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# OmniPOS Frontend: Desktop Billing Interface
 
-Currently, two official plugins are available:
+This repository contains the desktop-wrapped frontend for **OmniPOS**. It is an offline-first, high-performance billing dashboard built to turn a standard PC into a powerful retail command center.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
+This project leverages a modern "Desktop-Web" hybrid stack:
 
-## React Compiler
+* **React (JavaScript):** The core UI engine used for building the dynamic, state-driven billing dashboard.
+* **Vite:** The lightning-fast build tool providing Hot Module Replacement (HMR) for a seamless developer experience.
+* **Electron:** The desktop wrapper that bridges the gap between web code and the PC's native operating system.
+* **CSS (Flexbox/Grid):** For a responsive, professional layout that adapts to various screen resolutions.
+* **Node.js & npm:** For managing the ecosystem of desktop-level dependencies.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Expanding the ESLint configuration
+## Installation & Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Ensure you have [Node.js](https://nodejs.org/) (LTS) installed before beginning.
+
+### 1. Clone & Install
+```bash
+# Clone the repository
+git clone https://github.com/your-joakimtech/omnipos-Frontend.git
+cd omnipos-Frontend
+
+# Install all dependencies
+npm install
+``` 
+
+### 2. Required Desktop Tools
+If you haven't already, ensure the desktop-bridging tools are installed:
+```bash
+npm install --save-dev cross-env wait-on
+```
+
+## How to Run (Development Mode)
+
+Running a hybrid app requires starting the "web engine" first, followed by the "desktop shell." You will need **two terminal tabs** open in your IDE.
+
+### **Step 1: Start the React Engine (Terminal 1)**
+This launches the Vite development server.
+```bash
+npm run dev
+```
+*Wait until you see the `Local: http://localhost:5173/` link.*
+
+### **Step 2: Launch the Electron Window (Terminal 2)**
+Open a new terminal tab and run the desktop command:
+```bash
+npm run electron:start
+```
+
+## Key Frontend Features
+* **Dual-Terminal Workflow:** Optimized for real-time development and instant UI updates.
+* **Local-First UI:** Built to remain responsive without any external API calls.
+* **Hardware Ready:** Engineered with a shell that can communicate directly with thermal printers and USB scanners.
+* **Modern Syntax:** Utilizes `.cjs` entry points to ensure compatibility between modern ES Modules and the Electron Main process.
+
+## Developer's Note
+By combining the speed of React with the accessibility of Electron, we've created a UI that isn't just a "website in a box," but a dedicated tool for real-world retail environments.
+
+---

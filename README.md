@@ -95,7 +95,7 @@ Here’s the trick:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/omnipos.git
+git clone https://github.com/your-joakimtech/omnipos.git
 cd omnipos
 ```
 

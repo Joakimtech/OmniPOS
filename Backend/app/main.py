@@ -32,14 +32,20 @@ def home():
     return {"status": "OmniPOS Backend is Live", "database": "Connected"}
 
 # CREATE: Add a new product to the database
-@app.post("/products/", response_model=schemas.Product)
-def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
-    db_product = models.Product(**product.dict())
-    db.add(db_product)
+@app.post("/products/")
+def create_or_update_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    # Check if barcode exists in DB
+    existing = db.query(models.Product).filter(models.Product.barcode == product.barcode).first()
+    if existing:
+        existing.stock += 1
+        db.commit()
+        return existing
+    
+    # Otherwise create new
+    new_p = models.Product(**product.dict())
+    db.add(new_p)
     db.commit()
-    db.refresh(db_product)
-    return db_product
-
+    return new_p
 # READ: Get all products
 @app.get("/products/", response_model=list[schemas.Product])
 def read_products(db: Session = Depends(get_db)):

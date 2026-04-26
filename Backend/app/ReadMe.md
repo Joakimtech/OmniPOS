@@ -1,3 +1,8 @@
+**To activate the engine, in your terminal run the following:** <br>
+ensure you are in the backend folder
+* 1. venv\Scripts\activate
+* 2. python run.py
+
 *FASTAPI screenshot showing the backend is recieving data*<br>
 *media type: <br>application JSON*
 

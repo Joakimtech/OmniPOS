@@ -61,12 +61,18 @@ By combining the speed of React with the accessibility of Electron, we've create
 
 ---
 #### An ELECTRON window like this should pop up after running the commands  in the two terminals to show that (react + vite) are working well.
-<img width="1540" height="965" alt="image" src="https://github.com/user-attachments/assets/67d85b77-1f96-402e-9f6b-b095e0766590" />
+<img width="1540" height="965" alt="image" src="https://github.com/user-attachments/assets/67d85b77-1f96-402e-9f6b-b095e0766590" />.
+<br>
+#### **The frontend Electron window display** 
+<img width="1783" height="1032" alt="image" src="https://github.com/user-attachments/assets/3c088da2-c744-4ffe-abdf-983a8caedf29" />.
+</br>
 
 #### added theme toggle button in the Scanner app on the phone.
-* **Light Theme**
- <img width="1657" height="800" alt="image" src="https://github.com/user-attachments/assets/29b78bbc-ce67-4f7c-b25f-2b9abc98501f" />
+
+**Light Theme**
+ <img width="1657" height="800" alt="image" src="https://github.com/user-attachments/assets/29b78bbc-ce67-4f7c-b25f-2b9abc98501f" />.
+ </br>
  
-* **Dark Theme**
-  <br>
-<img width="1541" height="809" alt="image" src="https://github.com/user-attachments/assets/b259a8bf-32c5-4e71-8c1c-c565ec6c0cb8" />
+ **Dark Theme**
+ <img width="1541" height="809" alt="image" src="https://github.com/user-attachments/assets/b259a8bf-32c5-4e71-8c1c-c565ec6c0cb8" />.
+ </br>

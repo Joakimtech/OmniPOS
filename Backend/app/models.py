@@ -8,4 +8,6 @@ class Product(Base):
     name = Column(String, index=True)
     barcode = Column(String, unique=True, index=True)
     price = Column(Float)
-    stock = Column(Integer)
+    stock = Column(Integer, default=0)
+    # New column for stock alerts
+    reorder_level = Column(Integer, default=5)

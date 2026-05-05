@@ -60,11 +60,10 @@ npm run electron:start
 By combining the speed of React with the accessibility of Electron, we've created a UI that isn't just a "website in a box," but a dedicated tool for real-world retail environments.
 
 ---
-#### An ELECTRON window like this should pop up after running the commands  in the two terminals to show that (react + vite) are working well.
-<img width="1540" height="965" alt="image" src="https://github.com/user-attachments/assets/67d85b77-1f96-402e-9f6b-b095e0766590" />.
-<br>
+
 #### **The frontend Electron window display** 
-<img width="1783" height="1032" alt="image" src="https://github.com/user-attachments/assets/3c088da2-c744-4ffe-abdf-983a8caedf29" />.
+<img width="1784" height="1067" alt="image" src="https://github.com/user-attachments/assets/5691f008-5d03-4b77-8920-7920b9c546d6" />
+.
 </br>
 
 #### added theme toggle button in the Scanner app on the phone.

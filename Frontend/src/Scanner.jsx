@@ -7,9 +7,13 @@ let isScanning = false;
 const Scanner = () => {
   const [status, setStatus] = useState("");
   const [countdown, setCountdown] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default to Dark
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Dynamic Theme Colors
+  // --- DYNAMIC IP DISCOVERY ---
+  // Detects the IP of the PC you are currently connected to
+  const currentIP = window.location.hostname; 
+  const backendUrl = `http://${currentIP}:8000/products/`;
+
   const theme = {
     bg: isDarkMode ? '#0f172a' : '#f8fafc',
     card: isDarkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.9)',
@@ -30,10 +34,8 @@ const Scanner = () => {
   async function onScanSuccess(decodedText) {
     if (isScanning) return;
     isScanning = true;
-    setStatus("⏳ SYNCING...");
+    setStatus(" SYNCING...");
     
-    const backendUrl = "http://192.168.0.112:8000/products/";
-
     try {
       const response = await axios.get(backendUrl);
       const existingProduct = response.data.find(
@@ -48,7 +50,7 @@ const Scanner = () => {
           price: existingProduct.price,
           stock: 1
         });
-        message = `✅ ${existingProduct.name} UPDATED`;
+        message = ` ${existingProduct.name} UPDATED`;
       } else {
         const name = prompt("NEW ITEM FOUND! Enter Name:");
         if (name) {
@@ -59,7 +61,7 @@ const Scanner = () => {
             price: parseFloat(price) || 0,
             stock: 1
           });
-          message = ` ${name} ADDED`;
+          message = `⭐ ${name} ADDED`;
         } else {
           message = "SCAN CANCELLED";
         }
@@ -72,7 +74,7 @@ const Scanner = () => {
         setCountdown(0);
       }, 3000);
     } catch (err) {
-      setStatus("❌ SERVER OFFLINE");
+      setStatus(" SERVER OFFLINE");
       isScanning = false;
     }
   }
@@ -92,7 +94,6 @@ const Scanner = () => {
 
   return (
     <div style={{...containerStyle, backgroundColor: theme.bg, color: theme.text}}>
-      {/* Top Navigation Bar */}
       <div style={navStyle}>
         <div style={{...logoStyle, color: theme.accent}}>Omni<span style={{ fontWeight: '300' }}>POS</span></div>
         <button 
@@ -103,7 +104,6 @@ const Scanner = () => {
         </button>
       </div>
 
-      {/* Hero Status Section */}
       <div style={{...statusCardStyle, backgroundColor: theme.card, borderColor: status.includes('✅') ? '#22c55e' : theme.border}}>
         <div style={{ fontSize: '1.1rem', letterSpacing: '1px' }}>{status || "READY TO SCAN"}</div>
         {countdown > 0 && (
@@ -111,10 +111,8 @@ const Scanner = () => {
         )}
       </div>
 
-      {/* Scanner Window Wrapper */}
       <div style={scannerWrapper}>
         <div id="reader" style={readerStyle}></div>
-        {/* Aesthetic Corner Brackets */}
         <div style={{...corner, top: 0, left: 0, borderTop: '4px solid #fff', borderLeft: '4px solid #fff'}}></div>
         <div style={{...corner, top: 0, right: 0, borderTop: '4px solid #fff', borderRight: '4px solid #fff'}}></div>
         <div style={{...corner, bottom: 0, left: 0, borderBottom: '4px solid #fff', borderLeft: '4px solid #fff'}}></div>
@@ -124,7 +122,9 @@ const Scanner = () => {
       <div style={{...footerStyle, color: theme.subtext}}>
         <p>Ensure lighting is sufficient for barcodes</p>
         <div style={{...indicatorStyle, backgroundColor: theme.card}}>
-          <div style={{...dotStyle, backgroundColor: theme.accent}}></div> IP: 192.168.0.112
+          <div style={{...dotStyle, backgroundColor: theme.accent}}></div> 
+          {/* Automatically shows the active IP on the UI */}
+          Host IP: {currentIP}
         </div>
       </div>
     </div>
@@ -132,100 +132,17 @@ const Scanner = () => {
 };
 
 // --- STYLES ---
-
-const containerStyle = {
-  minHeight: '100vh',
-  padding: '20px',
-  transition: 'background-color 0.4s ease, color 0.4s ease',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-};
-
-const navStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '20px'
-};
-
-const logoStyle = {
-  fontSize: '1.5rem',
-  fontWeight: 'bold'
-};
-
-const themeToggleStyle = {
-  padding: '8px 16px',
-  borderRadius: '20px',
-  border: '1px solid',
-  cursor: 'pointer',
-  fontSize: '0.85rem',
-  fontWeight: 'bold',
-  transition: 'all 0.3s ease'
-};
-
-const statusCardStyle = {
-  backdropFilter: 'blur(10px)',
-  padding: '20px',
-  borderRadius: '16px',
-  border: '1px solid',
-  textAlign: 'center',
-  marginBottom: '25px',
-  minHeight: '80px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  transition: 'all 0.3s ease'
-};
-
-const countdownStyle = {
-  fontSize: '0.8rem',
-  marginTop: '8px',
-  textTransform: 'uppercase'
-};
-
-const scannerWrapper = {
-  position: 'relative',
-  width: '100%',
-  maxWidth: '400px',
-  margin: '0 auto',
-  borderRadius: '24px',
-  overflow: 'hidden',
-  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
-};
-
-const readerStyle = {
-  border: 'none',
-  width: '100%'
-};
-
-const corner = {
-  position: 'absolute',
-  width: '30px',
-  height: '30px',
-  zIndex: 10,
-  margin: '20px',
-  pointerEvents: 'none'
-};
-
-const footerStyle = {
-  textAlign: 'center',
-  marginTop: '30px',
-  fontSize: '0.85rem'
-};
-
-const indicatorStyle = {
-  marginTop: '10px',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '8px',
-  padding: '5px 15px',
-  borderRadius: '20px',
-  fontSize: '0.75rem'
-};
-
-const dotStyle = {
-  width: '6px',
-  height: '6px',
-  borderRadius: '50%'
-};
+const containerStyle = { minHeight: '100vh', padding: '20px', transition: 'background-color 0.4s ease, color 0.4s ease', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
+const navStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' };
+const logoStyle = { fontSize: '1.5rem', fontWeight: 'bold' };
+const themeToggleStyle = { padding: '8px 16px', borderRadius: '20px', border: '1px solid', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', transition: 'all 0.3s ease' };
+const statusCardStyle = { backdropFilter: 'blur(10px)', padding: '20px', borderRadius: '16px', border: '1px solid', textAlign: 'center', marginBottom: '25px', minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center', transition: 'all 0.3s ease' };
+const countdownStyle = { fontSize: '0.8rem', marginTop: '8px', textTransform: 'uppercase' };
+const scannerWrapper = { position: 'relative', width: '100%', maxWidth: '400px', margin: '0 auto', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' };
+const readerStyle = { border: 'none', width: '100%' };
+const corner = { position: 'absolute', width: '30px', height: '30px', zIndex: 10, margin: '20px', pointerEvents: 'none' };
+const footerStyle = { textAlign: 'center', marginTop: '30px', fontSize: '0.85rem' };
+const indicatorStyle = { marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 15px', borderRadius: '20px', fontSize: '0.75rem' };
+const dotStyle = { width: '6px', height: '6px', borderRadius: '50%' };
 
 export default Scanner;

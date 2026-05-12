@@ -1,150 +1,136 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import axios from 'axios';
 
-let isScanning = false;
-
 const Scanner = () => {
-  const [status, setStatus] = useState("");
-  const [countdown, setCountdown] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [scanResult, setScanResult] = useState(null);
+  const [status, setStatus] = useState("Ready to Scan");
 
-  // --- DYNAMIC IP DISCOVERY ---
-  // window.location.hostname automatically detects the IP or domain used to access the page
-  const currentIP = window.location.hostname; 
-  
-  // This routes requests to port 8000 on the same host detected by the browser
-  const backendUrl = `http://${currentIP}:8000/products/`;
-
-  const theme = {
-    bg: isDarkMode ? '#0f172a' : '#f8fafc',
-    card: isDarkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.9)',
-    text: isDarkMode ? '#f8fafc' : '#1e293b',
-    subtext: isDarkMode ? '#94a3b8' : '#64748b',
-    border: isDarkMode ? '#334155' : '#e2e8f0',
-    accent: '#38bdf8'
-  };
-
-  useEffect(() => {
-    let timer;
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [countdown]);
-
-  async function onScanSuccess(decodedText) {
-    if (isScanning) return;
-    isScanning = true;
-    setStatus("⏳ SYNCING...");
-    
-    try {
-      const response = await axios.get(backendUrl);
-      const existingProduct = response.data.find(
-        p => String(p.barcode).trim() === String(decodedText).trim()
-      );
-
-      let message = "";
-      if (existingProduct) {
-        await axios.post(backendUrl, {
-          name: existingProduct.name,
-          barcode: existingProduct.barcode,
-          price: existingProduct.price,
-          stock: 1
-        });
-        message = `✅ ${existingProduct.name} UPDATED`;
-      } else {
-        const name = prompt("NEW ITEM FOUND! Enter Name:");
-        if (name) {
-          const price = prompt("Enter Price (Ksh):", "0");
-          await axios.post(backendUrl, {
-            name: name,
-            barcode: decodedText,
-            price: parseFloat(price) || 0,
-            stock: 1
-          });
-          message = `⭐ ${name} ADDED`;
-        } else {
-          message = "SCAN CANCELLED";
-        }
-      }
-      setStatus(message);
-      setCountdown(3);
-      setTimeout(() => {
-        isScanning = false;
-        setStatus("");
-        setCountdown(0);
-      }, 3000);
-    } catch (err) {
-      setStatus(" SERVER OFFLINE");
-      isScanning = false;
-    }
-  }
+  // REPLACEMENT REQUIRED: Put your active ngrok URL here
+  const API_URL = "https://your-ngrok-url.ngrok-free.app/products/";
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner('reader', {
-      fps: 20,
       qrbox: { width: 250, height: 250 },
-      aspectRatio: 1.0,
-      videoConstraints: { facingMode: "environment" }
+      fps: 10,
     });
-    scanner.render(onScanSuccess, () => {});
-    return () => {
-      scanner.clear().catch(e => console.error(e));
-    };
+
+    scanner.render(onScanSuccess, onScanError);
+
+    function onScanSuccess(result) {
+      scanner.clear();
+      setScanResult(result);
+      sendDataToBackend(result);
+    }
+
+    function onScanError(err) {
+      // Quietly log errors to avoid UI clutter
+      console.warn(err);
+    }
+
+    return () => scanner.clear();
   }, []);
 
-  return (
-    <div style={{...containerStyle, backgroundColor: theme.bg, color: theme.text}}>
-      <div style={navStyle}>
-        <div style={{...logoStyle, color: theme.accent}}>Omni<span style={{ fontWeight: '300' }}>POS</span></div>
-        <button 
-          onClick={() => setIsDarkMode(!isDarkMode)} 
-          style={{...themeToggleStyle, backgroundColor: theme.card, color: theme.text, borderColor: theme.border}}
-        >
-          {isDarkMode ? '☀️ Light' : '🌙 Dark'}
-        </button>
-      </div>
+  const sendDataToBackend = async (barcode) => {
+    setStatus("Processing...");
+    try {
+      const response = await axios.post(API_URL, {
+        barcode: barcode,
+        name: "New Scanned Item", // Backend logic usually handles naming
+        price: 0.0,
+        stock: 1
+      });
+      
+      if (response.status === 200 || response.status === 201) {
+        setStatus("✅ Successfully Added!");
+        // Optional: Add a haptic feedback or sound here
+        if (window.navigator.vibrate) window.navigator.vibrate(200); 
+      }
+    } catch (error) {
+      console.error("Transmission Error:", error);
+      setStatus("❌ Failed to send. Check ngrok/backend.");
+    }
 
-      <div style={{...statusCardStyle, backgroundColor: theme.card, borderColor: status.includes('✅') ? '#22c55e' : theme.border}}>
-        <div style={{ fontSize: '1.1rem', letterSpacing: '1px' }}>{status || "READY TO SCAN"}</div>
-        {countdown > 0 && (
-          <div style={{...countdownStyle, color: theme.subtext}}>Cooldown: {countdown}s</div>
+    // Reset status after 3 seconds to allow for next scan
+    setTimeout(() => {
+      setStatus("Ready to Scan");
+      window.location.reload(); // Restarts the scanner for the next item
+    }, 3000);
+  };
+
+  return (
+    <div style={containerStyle}>
+      <header style={headerStyle}>
+        <h2>Omni<span style={{ color: '#38bdf8' }}>POS</span> Mobile</h2>
+        <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}>Live Terminal Link</p>
+      </header>
+
+      <div id="reader" style={scannerStyle}></div>
+
+      <div style={statusCardStyle}>
+        <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase' }}>Current Status</div>
+        <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginTop: '5px' }}>{status}</div>
+        {scanResult && (
+          <div style={{ marginTop: '10px', color: '#38bdf8', fontFamily: 'monospace' }}>
+            ID: {scanResult}
+          </div>
         )}
       </div>
 
-      <div style={scannerWrapper}>
-        <div id="reader" style={readerStyle}></div>
-        <div style={{...corner, top: 0, left: 0, borderTop: '4px solid #fff', borderLeft: '4px solid #fff'}}></div>
-        <div style={{...corner, top: 0, right: 0, borderTop: '4px solid #fff', borderRight: '4px solid #fff'}}></div>
-        <div style={{...corner, bottom: 0, left: 0, borderBottom: '4px solid #fff', borderLeft: '4px solid #fff'}}></div>
-        <div style={{...corner, bottom: 0, right: 0, borderBottom: '4px solid #fff', borderRight: '4px solid #fff'}}></div>
-      </div>
-
-      <div style={{...footerStyle, color: theme.subtext}}>
-        <p>Ensure lighting is sufficient for barcodes</p>
-        <div style={{...indicatorStyle, backgroundColor: theme.card}}>
-          <div style={{...dotStyle, backgroundColor: theme.accent}}></div> 
-          {/* Displays the detected host IP or domain on the UI */}
-          Host IP: {currentIP}
-        </div>
-      </div>
+      <button 
+        onClick={() => window.location.reload()} 
+        style={refreshButtonStyle}>
+        🔄 Reset Scanner
+      </button>
     </div>
   );
 };
 
 // --- STYLES ---
-const containerStyle = { minHeight: '100vh', padding: '20px', transition: 'background-color 0.4s ease, color 0.4s ease', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
-const navStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' };
-const logoStyle = { fontSize: '1.5rem', fontWeight: 'bold' };
-const themeToggleStyle = { padding: '8px 16px', borderRadius: '20px', border: '1px solid', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', transition: 'all 0.3s ease' };
-const statusCardStyle = { backdropFilter: 'blur(10px)', padding: '20px', borderRadius: '16px', border: '1px solid', textAlign: 'center', marginBottom: '25px', minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center', transition: 'all 0.3s ease' };
-const countdownStyle = { fontSize: '0.8rem', marginTop: '8px', textTransform: 'uppercase' };
-const scannerWrapper = { position: 'relative', width: '100%', maxWidth: '400px', margin: '0 auto', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' };
-const readerStyle = { border: 'none', width: '100%' };
-const corner = { position: 'absolute', width: '30px', height: '30px', zIndex: 10, margin: '20px', pointerEvents: 'none' };
-const footerStyle = { textAlign: 'center', marginTop: '30px', fontSize: '0.85rem' };
-const indicatorStyle = { marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '5px 15px', borderRadius: '20px', fontSize: '0.75rem' };
-const dotStyle = { width: '6px', height: '6px', borderRadius: '50%' };
+const containerStyle = {
+  fontFamily: 'sans-serif',
+  backgroundColor: '#0f172a',
+  color: 'white',
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: '20px'
+};
+
+const headerStyle = {
+  textAlign: 'center',
+  marginBottom: '30px'
+};
+
+const scannerStyle = {
+  width: '100%',
+  maxWidth: '400px',
+  borderRadius: '20px',
+  overflow: 'hidden',
+  border: '2px solid #334155'
+};
+
+const statusCardStyle = {
+  width: '80%',
+  maxWidth: '350px',
+  backgroundColor: '#1e293b',
+  padding: '20px',
+  borderRadius: '15px',
+  marginTop: '30px',
+  textAlign: 'center',
+  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
+};
+
+const refreshButtonStyle = {
+  marginTop: '20px',
+  padding: '12px 25px',
+  borderRadius: '30px',
+  border: 'none',
+  backgroundColor: '#38bdf8',
+  color: 'white',
+  fontWeight: 'bold',
+  cursor: 'pointer'
+};
 
 export default Scanner;

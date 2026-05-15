@@ -201,6 +201,10 @@ git commit -m "Add your feature"
 # Push and open a PR( pull request)
 ```
 
+##  Support the Project
+
+If you find this project useful, consider a small donation by clicking the button below to support future development.
+**[![Sponsor](https://img.shields.io/badge/Sponsor-PayPal-00457C?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate?business=kiugijoakim%40gmail.com&no_recurring=0&currency_code=USD)**
 
 ## Final Thought
 
